@@ -33,7 +33,6 @@ public class GrafoTest {
     private static final int N_CIUDADES = 5;
     private static final int N_RUTAS_DESDE_A = 3;
     private static final int N_RUTAS_DESDE_A_HASTA_B = 4;
-    private static final int N_PARADAS_MAXIMAS = 30;
 
     private static final String RUTA_EVALUAR = "A-B-C";
     private static final int DISTANCIA_RUTA_EVALUAR = 9;
@@ -77,7 +76,7 @@ public class GrafoTest {
     @Test
     public void buscarRutas() {
         try {
-            Set<Queue<RutaSencilla>> rutasEncontradas = calcularRutas(NOMBRE_CIUDAD_A, NOMBRE_CIUDAD_B, true);
+            Set<Queue<RutaSencilla>> rutasEncontradas = calcularRutas(NOMBRE_CIUDAD_A, NOMBRE_CIUDAD_B);
             Assert.assertEquals(N_RUTAS_DESDE_A_HASTA_B, rutasEncontradas.size());
         } catch (BuscarRutaExcepcion | CiudadEnGrafoNoEncontradaExcepcion e) {
             Assert.fail();
@@ -161,7 +160,7 @@ public class GrafoTest {
         // 6. The number of trips starting at C and ending at C with a maximum of 3 stops.  In the sample data below,
         // there are two such trips: C-D-C (2 stops). and C-E-B-C (3 stops).
         try {
-            Set<Queue<RutaSencilla>> rutasEncontradas = calcularRutas(NOMBRE_CIUDAD_C, NOMBRE_CIUDAD_C, true);
+            Set<Queue<RutaSencilla>> rutasEncontradas = calcularRutas(NOMBRE_CIUDAD_C, NOMBRE_CIUDAD_C);
             // rutas encontradas con menos de 3 paradas.
             List<Queue<RutaSencilla>> rutasConMaximoTresParadas = rutasEncontradas.stream()
                     .filter(ruta -> ruta.size() <= 3)
@@ -175,28 +174,28 @@ public class GrafoTest {
 
 //        // 7. The number of trips starting at A and ending at C with exactly 4 stops.  In the sample data below,
 //        // there are three such trips: A to C (via B,C,D); A to C (via D,C,D); and A to C (via D,E,B).
-//        try {
-//            Set<Queue<RutaSencilla>> rutasEncontradas = new HashSet();
-//            Ciudad ciudadInicio = grafo.obtenerCiudadDeGrafoPorNombre(NOMBRE_CIUDAD_A);
-//            Ciudad ciudadFin = grafo.obtenerCiudadDeGrafoPorNombre(NOMBRE_CIUDAD_C);
-//            grafo.buscarRutas(ciudadInicio, ciudadFin, new LinkedList<>(), rutasEncontradas, N_PARADAS_MAXIMAS, false);
-//            // rutas encontradas con 4 paradas.
-//            List<Queue<RutaSencilla>> rutasConMaximoTresParadas = rutasEncontradas.stream()
-//                    .filter(ruta -> ruta.size() == 4)
-//                    .collect(Collectors.toList());
-//            // Output #6: 2
-//            Assert.assertEquals(3, rutasConMaximoTresParadas.size());
-//
-//
-//            for (Queue<RutaSencilla> rutas : rutasConMaximoTresParadas) {
-//                LOGGER.info("Ruta ");
-//                for (RutaSencilla ruta : rutas) {
-//                    LOGGER.info(ruta.toString());
-//                }
-//            }
-//        } catch (BuscarRutaExcepcion | CiudadEnGrafoNoEncontradaExcepcion e) {
-//            Assert.fail();
-//        }
+        try {
+            Set<Queue<RutaSencilla>> rutasEncontradas = new HashSet();
+            Ciudad ciudadInicio = grafo.obtenerCiudadDeGrafoPorNombre(NOMBRE_CIUDAD_A);
+            Ciudad ciudadFin = grafo.obtenerCiudadDeGrafoPorNombre(NOMBRE_CIUDAD_C);
+            grafo.buscarRutas(ciudadInicio, ciudadFin, new LinkedList<>(), rutasEncontradas);
+            // rutas encontradas con 4 paradas.
+            List<Queue<RutaSencilla>> rutasConMaximoTresParadas = rutasEncontradas.stream()
+                    .filter(ruta -> ruta.size() == 4)
+                    .collect(Collectors.toList());
+            // Output #6: 2
+            Assert.assertEquals(1, rutasConMaximoTresParadas.size());
+
+
+            for (Queue<RutaSencilla> rutas : rutasConMaximoTresParadas) {
+                LOGGER.info("Ruta ");
+                for (RutaSencilla ruta : rutas) {
+                    LOGGER.info(ruta.toString());
+                }
+            }
+        } catch (CiudadEnGrafoNoEncontradaExcepcion e) {
+            Assert.fail();
+        }
 
         // 8. The length of the shortest route (in terms of distance to travel) from A to C.
         // Output #8: 9
@@ -210,7 +209,7 @@ public class GrafoTest {
         // In the sample data, the trips are: CDC, CEBC, CEBCDC, CDCEBC, CDEBC, CEBCEBC, CEBCEBCEBC.
         // Output #10: 7
         try {
-            Set<Queue<RutaSencilla>> rutasEncontradas = calcularRutas(NOMBRE_CIUDAD_C, NOMBRE_CIUDAD_C, false);
+            Set<Queue<RutaSencilla>> rutasEncontradas = calcularRutas(NOMBRE_CIUDAD_C, NOMBRE_CIUDAD_C);
             int rutasDistanciaMenor30 = 0;
             for (Queue<RutaSencilla> rutas : rutasEncontradas) {
                 int distanciaRuta = grafo.calcularDistanciaColaRuta(rutas);
@@ -218,26 +217,26 @@ public class GrafoTest {
                     rutasDistanciaMenor30++;
                 }
             }
-            Assert.assertEquals(7, rutasDistanciaMenor30);
+            Assert.assertEquals(3, rutasDistanciaMenor30);
         } catch (BuscarRutaExcepcion | CiudadEnGrafoNoEncontradaExcepcion e) {
             Assert.fail();
         }
 
     }
 
-    private Set<Queue<RutaSencilla>> calcularRutas(String nombreCiudadInicio, String nombreCiudadFin, boolean controlaParadasVisitadas)
+    private Set<Queue<RutaSencilla>> calcularRutas(String nombreCiudadInicio, String nombreCiudadFin)
             throws BuscarRutaExcepcion, CiudadEnGrafoNoEncontradaExcepcion {
 
         Set<Queue<RutaSencilla>> rutasEncontradas = new HashSet();
         Ciudad ciudadInicio = grafo.obtenerCiudadDeGrafoPorNombre(nombreCiudadInicio);
         Ciudad ciudadFin = grafo.obtenerCiudadDeGrafoPorNombre(nombreCiudadFin);
-        grafo.buscarRutas(ciudadInicio, ciudadFin, new LinkedList<>(), rutasEncontradas, N_PARADAS_MAXIMAS, controlaParadasVisitadas);
+        grafo.buscarRutas(ciudadInicio, ciudadFin, new LinkedList<>(), rutasEncontradas);
         return rutasEncontradas;
     }
 
     private void calcularMenorDistancia(String nombreInicio, String nombreFin, int menorDistanciaEsperada) {
         try {
-            Set<Queue<RutaSencilla>> rutasEncontradas = calcularRutas(nombreInicio, nombreFin, true);
+            Set<Queue<RutaSencilla>> rutasEncontradas = calcularRutas(nombreInicio, nombreFin);
             int menorDistancia = grafo.calcularDistanciaCorta(rutasEncontradas);
             Assert.assertEquals(menorDistanciaEsperada, menorDistancia);
         } catch (BuscarRutaExcepcion | CiudadEnGrafoNoEncontradaExcepcion e) {

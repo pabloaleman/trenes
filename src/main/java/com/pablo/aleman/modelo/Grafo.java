@@ -82,21 +82,16 @@ public class Grafo {
 
     public void buscarRutas(Ciudad inicio, Ciudad fin,
                                               Queue<RutaSencilla> rutasVisitadas,
-                                              Set<Queue<RutaSencilla>> rutasEncontradas, int paradasMaximas,
-                                              boolean controlaParadasVisitadas) {
+                                              Set<Queue<RutaSencilla>> rutasEncontradas) {
 
         for (RutaSencilla rutaSencilla : inicio.getRutaSencillas()) {
             Queue<RutaSencilla> rutasTemporales = new LinkedList<>(rutasVisitadas);
 
             // Si ya se ha visitado la ruta debe llegar hasta ahi para evitar lazos infinitos
-            if (controlaParadasVisitadas && rutasVisitadas.contains(rutaSencilla)) {
+            if (rutasVisitadas.contains(rutaSencilla)) {
                 break;
             }
 
-            // Se define un numero de paradas maximas para evitar lazos infinitos
-            if (rutasTemporales.size() > paradasMaximas) {
-                break;
-            }
             rutasTemporales.add(rutaSencilla);
 
             // Cuando ya se encuentra la ciudad destino
@@ -104,7 +99,7 @@ public class Grafo {
                 rutasEncontradas.add(rutasTemporales);
                 break;
             } else {
-                buscarRutas(rutaSencilla.getCiudadFin(), fin, rutasTemporales, rutasEncontradas, paradasMaximas, controlaParadasVisitadas);
+                buscarRutas(rutaSencilla.getCiudadFin(), fin, rutasTemporales, rutasEncontradas);
             }
         }
     }
